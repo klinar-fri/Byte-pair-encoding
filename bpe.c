@@ -61,10 +61,20 @@ void swapTokenDa(Tokens* a, Tokens* b){
 }
 
 
+/*
+
+Performance:
+kafka.txt : 5288 bytes -> 1538 bytes
+
+*/
+
 
 int main(){
     // const char* txt = "The original BPE algorithm operates by iteratively replacing the most common contiguous sequences of characters in a target text with unused 'placeholder' bytes. The iteration ends when no sequences can be found, leaving the target text effectively compressed. Decompression can be performed by reversing this process, querying known placeholder terms against their corresponding denoted sequence, using a lookup table. In the original paper, this lookup table is encoded and stored alongside the compressed text.";
-    const char* txt = "aaabdaaabac";
+    // const char* txt = "aaabdaaabac";
+    FILE* input = fopen("samsa.txt", "r");
+    char* txt = calloc(10010, sizeof(char));
+    fgets(txt, 10010, input);
     int textSize = strlen(txt);
 
     // hash table of frequency
@@ -93,6 +103,8 @@ int main(){
         arrput(tokensIn.items, txt[i]);
         tokensIn.count += 1;
     }
+
+    printf("%d\n", tokensIn.count);
 
     while (1){
         hmfree(freq);
@@ -154,9 +166,13 @@ int main(){
     }
 
     // the compressed txt:
-    renderTokens(pairs, tokensIn);
-    printf("Generated %u new tokens.\n", pairs.count - 256);
+    // renderTokens(pairs, tokensIn);
+    // printf("Generated %u new tokens.\n", pairs.count - 256);
 
+    printf("%d\n", tokensIn.count);
+
+    fclose(input);
+    free(txt);
     return 0;
 }
 
