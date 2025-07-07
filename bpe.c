@@ -3,8 +3,12 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
+
+#define PRINT_ITERATIONS 0
+#define PRINT_TO_TXT 0
 
 typedef struct{
     uint32_t l;
@@ -54,6 +58,21 @@ void renderTokens(Pairs pairs, Tokens tokens){
     printf("\n");
 }
 
+void renderTokensToFile(FILE* output, Pairs pairs, Tokens tokens){
+    for(int i = 0; i < tokens.count; i++){
+        uint32_t currToken = tokens.items[i];
+        assert(currToken < pairs.count);
+        // if we reach the "leaf" node we just print normally
+        // else we print the changed 2 characters as token
+        if(pairs.items[currToken].l == currToken){
+            fprintf(output, "%c", currToken);
+        }else{
+            fprintf(output, "[%d]", currToken);
+        }
+    }
+    printf("\n");
+}
+
 void swapTokenDa(Tokens* a, Tokens* b){
     Tokens t = *a;
     *a = *b;
@@ -65,17 +84,22 @@ void swapTokenDa(Tokens* a, Tokens* b){
 
 Performance:
 kafka.txt : 5288 bytes -> 1538 bytes
-
+ - time: 0.144s
+kafkaBiggerOut.txt : 110000 bytes -> 55362 bytes (not really a real txt)
+ - time: 48.556s
 */
 
 
 int main(){
     // const char* txt = "The original BPE algorithm operates by iteratively replacing the most common contiguous sequences of characters in a target text with unused 'placeholder' bytes. The iteration ends when no sequences can be found, leaving the target text effectively compressed. Decompression can be performed by reversing this process, querying known placeholder terms against their corresponding denoted sequence, using a lookup table. In the original paper, this lookup table is encoded and stored alongside the compressed text.";
     // const char* txt = "aaabdaaabac";
-    FILE* input = fopen("kafka.txt", "r");
-    char* txt = calloc(10010, sizeof(char));
-    fgets(txt, 10010, input);
+    const char* test1 = "kafka.txt";
+    const char* test2 = "kafkaBiggerMod.txt";
+    FILE* input = fopen(test1, "r");
+    char* txt = calloc(110010, sizeof(char));
+    fgets(txt, 110010, input);
     int textSize = strlen(txt);
+    int iterationCount = 0;
 
     // hash table of frequency
     Freq* freq = NULL;
@@ -162,15 +186,29 @@ int main(){
         // renderTokens(pairs, tokensOut);
         // printf("%d\n%d\n", tokensIn.count, tokensOut.count);
 
+        #if PRINT_ITERATIONS
+        // print the number of tokens on every 100th iteration
+        if(iterationCount % 100 == 0){
+            printf("%d\n", tokensIn.count);
+        }
+        iterationCount++;
+        #endif
+
         swapTokenDa(&tokensIn, &tokensOut);
     }
+
+
+    #if PRINT_TO_TXT
+    FILE* output = fopen("kafkaBiggerOut.txt", "w");
+    renderTokensToFile(output, pairs, tokensIn);
+    #endif
+    printf("%d\n", tokensIn.count);
 
     // the compressed txt:
     // renderTokens(pairs, tokensIn);
     // printf("Generated %u new tokens.\n", pairs.count - 256);
 
-    printf("%d\n", tokensIn.count);
-
+    // fclose(output);
     fclose(input);
     free(txt);
     return 0;
