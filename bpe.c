@@ -7,6 +7,7 @@
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
+// enable different printing options
 #define PRINT_ITERATIONS 0
 #define PRINT_TO_TXT 0
 
@@ -70,7 +71,6 @@ void renderTokensToFile(FILE* output, Pairs pairs, Tokens tokens){
             fprintf(output, "[%d]", currToken);
         }
     }
-    printf("\n");
 }
 
 void swapTokenDa(Tokens* a, Tokens* b){
@@ -85,7 +85,7 @@ void swapTokenDa(Tokens* a, Tokens* b){
 Performance:
 kafka.txt : 5288 bytes -> 1538 bytes
  - time: 0.144s
-kafkaBiggerOut.txt : 110000 bytes -> 55362 bytes (not really a real txt)
+kafkaBiggerMod.txt : 110000 bytes -> 55362 bytes (not really a real txt)
  - time: 48.556s
 */
 
@@ -135,11 +135,11 @@ int main(){
         for(int i = 0; i < tokensIn.count - 1; i++){
             // printf("%c%c\n", txt[i], txt[i + 1]);
             Pair pair = {tokensIn.items[i], tokensIn.items[i + 1]};
-            ptrdiff_t i = hmgeti(freq, pair);
-            if(i < 0){
+            ptrdiff_t place = hmgeti(freq, pair);
+            if(place < 0){
                 hmput(freq, pair, 1);
             }else{
-                freq[i].value += 1;
+                freq[place].value += 1;
             }
         }
 
@@ -199,7 +199,7 @@ int main(){
 
 
     #if PRINT_TO_TXT
-    FILE* output = fopen("kafkaBiggerOut.txt", "w");
+    FILE* output = fopen("kafkaOut.txt", "w");
     renderTokensToFile(output, pairs, tokensIn);
     #endif
     printf("%d\n", tokensIn.count);
