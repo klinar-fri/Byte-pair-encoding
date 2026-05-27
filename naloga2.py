@@ -304,4 +304,4 @@ def make_zchannel_dataset(
 # print(estimate_capacity(vhod[0], vhod[1], 2, 2))
 
 # za bec
-# print(estimate_capacity(vhod[0], vhod[1], 2, 2))
+# print(estimate_capacity(vhod[0], vhod[1], 2, 3))
